@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:test_sample/login_screen.dart';
+import 'package:flutter/services.dart';
 
 
 void main() => runApp(new MaterialApp(
@@ -39,6 +40,14 @@ class _SpalshScreenState extends State<SpalshScreen> {
   }
   @override
   Widget build(BuildContext context) {
+
+    /*for working only portrait mode*/
+    SystemChrome.setPreferredOrientations(
+      [
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.portraitUp
+      ]
+    );
     return Container(
        child: new Image(
           image: AssetImage("assets/splash.png"),

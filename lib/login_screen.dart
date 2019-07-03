@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'dart:convert';
+import 'package:test_sample/profile.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,8 +14,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   final  _usernameController = TextEditingController();
   final  _passwordController = TextEditingController();
-
- 
 
   AnimationController _animationController;
   Animation<double> _animation;
@@ -83,29 +83,30 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   void _performLogin(){
        
-        String email = _usernameController.text;
-        String password = _passwordController.text;
+       onBackPressed(); // for a short while 
+    //   String email = _usernameController.text;
+    //   String password = _passwordController.text;
 
-      bool emailValid = RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+    //   bool emailValid = RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
      
-      if(!emailValid){
-        Fluttertoast.showToast(
-          msg: "Email is not valid.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIos: 5
-        );
-      }else if(password.length<=5){
-        Fluttertoast.showToast(
-          msg: "Please enter 6 digit password.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIos: 5
-        );
-      }
-    if(emailValid && password.length>= 6){
-      onBackPressed();
-    }
+    //   if(!emailValid){
+    //     Fluttertoast.showToast(
+    //       msg: "Email is not valid.",
+    //       toastLength: Toast.LENGTH_SHORT,
+    //       gravity: ToastGravity.BOTTOM,
+    //       timeInSecForIos: 5
+    //     );
+    //   }else if(password.length<=5){
+    //     Fluttertoast.showToast(
+    //       msg: "Please enter 6 digit password.",
+    //       toastLength: Toast.LENGTH_SHORT,
+    //       gravity: ToastGravity.BOTTOM,
+    //       timeInSecForIos: 5
+    //     );
+    //   }
+    // if(emailValid && password.length>= 6){
+    //   onBackPressed();
+    // }
   }
 
   void onBackPressed(){
@@ -147,26 +148,102 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 }
 
-class SecondRoute extends StatelessWidget {
+class SecondRoute extends StatefulWidget {
+  @override
+  _SecondRouteState createState() => _SecondRouteState();
+}
+
+class _SecondRouteState extends State<SecondRoute> {
+bool _load = false;
+  final String url = "https://swapi.co/api/people";
+  List data = new List();
+
+  @override
+  void initState() {
+    super.initState();
+    this.getJsonData();
+    setState((){ _load=true;});
+  }
+
+  Future<String> getJsonData() async {
+
+    var response = await http.get(
+      // Encodwe the URL
+      Uri.encodeFull(url),
+      // Header only accept the application/JSON file
+      headers: {"Accept":"application/json"},
+    );
+   
+    print(response.body);
+
+    setState(() {
+      print("State changed");
+      _load=false;
+     var convertDataTOJson = json.decode(response.body);
+     data = convertDataTOJson['results'];
+    });
+    return "Success";
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      
-      appBar: AppBar(
-        title: Text("Second Route"),
+  Widget loadingIndicator =_load? new Container(
+      color: Colors.grey[300],
+      width: 70.0,
+      height: 70.0,
+      child: new Padding(padding: const EdgeInsets.all(5.0),child: new Center(child: new CircularProgressIndicator())),
+    ):new Container();
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text("JSON Data"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(choices[0].iconData),
+            onPressed:() {
+              Route route = MaterialPageRoute(builder: (context) => ProfileSetting());
+              Navigator.push(context, route);
+            },
+          ),
+        ],
       ),
-      body: Center(
-        
-        child: new Padding(
-          padding: EdgeInsets.all(10.0),
-          child : new Text("Welcome to Home Screen", style: TextStyle(fontSize: 60.0),),
-        ) 
-        
-      
+      body: new Stack(
+          children: <Widget>[
+            new Padding( padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
+            child: new ListView.builder(
+                itemCount: data.length == null ? 0 : data.length,
+                itemBuilder: (BuildContext context, int index){
+                  return new Container(
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          new Card(
+                            child: new Container(
+                              margin: const EdgeInsets.all(20.0),
+                              child: new Text(data[index]['name']),
+                            ),
+                          )
+                        ],
+                      ),    
+                  );    
+                },
+              ), 
+            ),
+            new Align(child: loadingIndicator,alignment: FractionalOffset.center,),
+          ],
       ),
     );
   }
 }
 
+class Choice{
+ final String title;
+ final IconData iconData;
 
-// bool emailValid = RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+const Choice({this.title, this.iconData});
+
+}
+
+const List<Choice>choices = const <Choice>[
+  const Choice(title: "Setting", iconData : Icons.settings)
+
+];
