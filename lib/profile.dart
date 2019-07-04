@@ -1,5 +1,8 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter/widgets.dart';
 class ProfileSetting extends StatefulWidget {
   @override
   _ProfileSettingState createState() => _ProfileSettingState();
@@ -8,6 +11,13 @@ class ProfileSetting extends StatefulWidget {
 class _ProfileSettingState extends State<ProfileSetting>  with SingleTickerProviderStateMixin {
   bool _status = true;
   final FocusNode myFocusNode = FocusNode();
+  Future<File> imageFile;
+
+  pickImageFromGallery(ImageSource source) {
+    setState(() {
+      imageFile = ImagePicker.pickImage(source: source);
+    });
+  }
 
   @override
   void initState() {
@@ -61,17 +71,19 @@ class _ProfileSettingState extends State<ProfileSetting>  with SingleTickerProvi
                           padding: EdgeInsets.only(top: 20.0),
                           child: new Stack(fit: StackFit.loose, children: <Widget>[
                             new Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                             // crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
+
                                 new Container(
                                     width: 140.0,
                                     height: 140.0,
                                     decoration: new BoxDecoration(
                                       shape: BoxShape.circle,
                                       image: new DecorationImage(
-                                        image: new ExactAssetImage(
-                                            'assets/user.jpg'),
+
+//                                        image: new ExactAssetImage(
+//                                            'assets/user.jpg'),
                                         fit: BoxFit.cover,
 
                                       ),
@@ -80,18 +92,14 @@ class _ProfileSettingState extends State<ProfileSetting>  with SingleTickerProvi
                             ),
                             Padding(
                                 padding: EdgeInsets.only(top: 90.0, right: 100.0),
-                                child: new Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    new CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      radius: 25.0,
-                                      child: new Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  ],
+                                child: new GestureDetector(
+                                  child: new Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                       _editProfileImage()
+
+                                    ],
+                                  ),
                                 )),
                           ]),
                         )
@@ -342,7 +350,7 @@ class _ProfileSettingState extends State<ProfileSetting>  with SingleTickerProvi
                       });
                     },
                     shape: new RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(20.0)),
+                        borderRadius: new BorderRadius.circular(15.0)),
                   )),
             ),
             flex: 2,
@@ -362,10 +370,10 @@ class _ProfileSettingState extends State<ProfileSetting>  with SingleTickerProvi
                       });
                     },
                     shape: new RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(20.0)),
+                        borderRadius: new BorderRadius.circular(15.0)),
                   )),
             ),
-            flex: 2,
+            flex: 1,
           ),
         ],
       ),
@@ -387,6 +395,48 @@ class _ProfileSettingState extends State<ProfileSetting>  with SingleTickerProvi
         setState(() {
           _status = false;
         });
+      },
+    );
+  }
+
+  Widget _editProfileImage(){
+    return new GestureDetector(
+      child: new CircleAvatar(
+        backgroundColor: Colors.red,
+        child: new Icon(
+          Icons.camera_alt,
+          color: Colors.white,
+
+        ),
+      ),
+      onTap: () {
+        pickImageFromGallery(ImageSource.gallery);
+      },
+    );
+  }
+
+  Widget showImage() {
+    return FutureBuilder<File>(
+      future: imageFile,
+      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.data != null) {
+          return Image.file(
+            snapshot.data,
+            width: 300,
+            height: 300,
+          );
+        } else if (snapshot.error != null) {
+          return const Text(
+            'Error Picking Image',
+            textAlign: TextAlign.center,
+          );
+        } else {
+          return const Text(
+            'No Image Selected',
+            textAlign: TextAlign.center,
+          );
+        }
       },
     );
   }
