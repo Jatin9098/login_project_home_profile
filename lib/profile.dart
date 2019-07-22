@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/widgets.dart';
+
 class ProfileSetting extends StatefulWidget {
   @override
   _ProfileSettingState createState() => _ProfileSettingState();
@@ -74,7 +75,6 @@ class _ProfileSettingState extends State<ProfileSetting>  with SingleTickerProvi
                              // crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-
                                 new Container(
                                     width: 140.0,
                                     height: 140.0,
@@ -82,8 +82,10 @@ class _ProfileSettingState extends State<ProfileSetting>  with SingleTickerProvi
                                       shape: BoxShape.circle,
                                       image: new DecorationImage(
 
-//                                        image: new ExactAssetImage(
-//                                            'assets/user.jpg'),
+                                        image: imageFile!= null ?
+                                        showImage() :
+                                        new ExactAssetImage(
+                                            'assets/user.jpg'),
                                         fit: BoxFit.cover,
 
                                       ),
