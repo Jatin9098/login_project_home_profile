@@ -17,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   AnimationController _animationController;
   Animation<double> _animation;
+  bool istrue = false;
 
   @override
   void initState() {

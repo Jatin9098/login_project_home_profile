@@ -1,58 +1,110 @@
-import 'dart:async';
+// Copyright 2017 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
-import 'package:test_sample/login_screen.dart';
-import 'package:flutter/services.dart';
 
-
-void main() => runApp(new MaterialApp(
-  home: new SpalshScreen(),
-  routes: < String , WidgetBuilder>{
-     '/HomeScreen':(BuildContext context) => new HomeScreen(),
-    
-  },
-//   routes: <String, WidgetBuilder>{
-//  '/Second': (BuildContext context) => new SecondScreen(),
-//   },
-
-    
-));
-
-class SpalshScreen extends StatefulWidget {
-  @override
-  _SpalshScreenState createState() => _SpalshScreenState();
-}
-
-class _SpalshScreenState extends State<SpalshScreen> {
-  
-  @override
-  void initState(){
-    super.initState();
-    this.startTime();
-  }
-
-  startTime() async{
-    var _duration = new Duration(seconds: 3);
-    return new Timer(_duration, navigationPage);
-  }
-
-  void navigationPage(){
-    Navigator.of(context).pushReplacementNamed('/HomeScreen');
-  }
+class ExpansionTileSample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
-    /*for working only portrait mode*/
-    SystemChrome.setPreferredOrientations(
-      [
-        DeviceOrientation.portraitDown,
-        DeviceOrientation.portraitUp
-      ]
-    );
-    return Container(
-       child: new Image(
-          image: AssetImage("assets/splash.png"),
-          fit: BoxFit.cover,
-    ),
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('ExpansionTile'),
+        ),
+        body: ListView.builder(
+          itemBuilder: (BuildContext context, int index) =>
+              EntryItem(data[index]),
+          itemCount: data.length,
+        ),
+      ),
     );
   }
+}
+
+// One entry in the multilevel list displayed by this app.
+class Entry {
+  
+  final String title;
+  final List<Entry> children;
+
+  Entry(this.title, [this.children = const <Entry>[]]);
+
+}
+
+// The entire multilevel list displayed by this app.
+final List<Entry> data = <Entry>[
+  Entry(
+    'Chapter A',
+    <Entry>[
+      Entry('Section A0'),
+      Entry('Section A1'),
+      Entry('Section A2'),
+    ],
+  ),
+  Entry(
+    'Chapter B',
+    <Entry>[
+      Entry('Section B0'),
+      Entry('Section B1'),
+    ],
+  ),
+  Entry(
+    'Chapter C',
+    <Entry>[
+      Entry('Section C0'),
+      Entry('Section C1'),
+      Entry('Section C2',),
+    ],
+  ),
+];
+
+// Displays one Entry. If the entry has children then it's displayed
+// with an ExpansionTile.
+class EntryItem extends StatelessWidget {
+  const EntryItem(this.entry);
+
+  final Entry entry;
+
+  Widget _buildTiles(Entry root) {
+    if (root.children.isEmpty) 
+      return ListTile(title: Text(root.title));
+    
+    return GestureDetector(
+      onTap: (){
+      
+
+        var title = root.children[0].title;
+       
+        if(title.contains("Section A0")){
+          print("MAtchecd");
+        }
+        else{
+          print("Not matched");
+        }
+
+        print("$title");
+
+      },
+          child: Container(
+        
+        child: ExpansionTile(
+          
+          key: PageStorageKey<Entry>(root),
+          title: Text(root.title,),
+          children: root.children.map(_buildTiles).toList(),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    
+    return _buildTiles(entry);
+  }
+}
+
+void main() {
+  runApp(ExpansionTileSample());
 }
