@@ -2,14 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-
-
 void main(List<String> args) {
   List<charts.Series<OrdinalSales, String>> _createSampleData() {
     final desktopSalesData = [
       new OrdinalSales('2014', 5),
       new OrdinalSales('2015', 25),
-      new OrdinalSales('2016', 100),
+      new OrdinalSales('2016', 72),
       new OrdinalSales('2017', 75),
     ];
 
@@ -60,25 +58,19 @@ void main(List<String> args) {
         data: otherSalesData,
       ),
     ];
-    }
+  }
+
   return runApp(new MaterialApp(
-    theme: ThemeData(
-      primarySwatch: Colors.blue,
-      primaryColor: Colors.teal
-    ),
-      home: Scaffold(
-        
-        body: Container(
-          margin: EdgeInsets.all(20.0),
-            padding: EdgeInsets.all(20.0),
-            child: new SimpleSeriesLegend(_createSampleData()),
-        ),
-           
+    theme: ThemeData(primarySwatch: Colors.blue, primaryColor: Colors.teal),
+    home: Scaffold(
+      body: Container(
+        margin: EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(20.0),
+        child: new SimpleSeriesLegend(_createSampleData()),
       ),
-      
+    ),
   ));
 }
-
 
 class SimpleSeriesLegend extends StatelessWidget {
   final List<charts.Series> seriesList;
@@ -88,12 +80,11 @@ class SimpleSeriesLegend extends StatelessWidget {
 
   factory SimpleSeriesLegend.withSampleData() {
     return new SimpleSeriesLegend(
-    null,
+      null,
       // Disable animations for image tests.
       animate: false,
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -103,9 +94,19 @@ class SimpleSeriesLegend extends StatelessWidget {
       barGroupingType: charts.BarGroupingType.grouped,
       // Add the series legend behavior to the chart to turn on series legends.
       // By default the legend will display above the chart.
-      behaviors: [new charts.SeriesLegend(
-        position: charts.BehaviorPosition.bottom,
-      )],
+      behaviors: [
+        new charts.SeriesLegend(
+          position: charts.BehaviorPosition.bottom,
+        ),
+        new charts.ChartTitle("Years",
+            behaviorPosition: charts.BehaviorPosition.bottom,
+            titleOutsideJustification:
+                charts.OutsideJustification.middleDrawArea),
+        new charts.ChartTitle("Month",
+            behaviorPosition: charts.BehaviorPosition.start,
+            titleOutsideJustification:
+                charts.OutsideJustification.middleDrawArea),
+      ],
     );
   }
 
