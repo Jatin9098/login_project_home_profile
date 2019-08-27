@@ -1,110 +1,122 @@
-// Copyright 2017 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
+/// Bar chart with series legend example
 import 'package:flutter/material.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
-class ExpansionTileSample extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+
+
+void main(List<String> args) {
+  List<charts.Series<OrdinalSales, String>> _createSampleData() {
+    final desktopSalesData = [
+      new OrdinalSales('2014', 5),
+      new OrdinalSales('2015', 25),
+      new OrdinalSales('2016', 100),
+      new OrdinalSales('2017', 75),
+    ];
+
+    final tabletSalesData = [
+      new OrdinalSales('2014', 25),
+      new OrdinalSales('2015', 50),
+      new OrdinalSales('2016', 10),
+      new OrdinalSales('2017', 20),
+    ];
+
+    final mobileSalesData = [
+      new OrdinalSales('2014', 10),
+      new OrdinalSales('2015', 15),
+      new OrdinalSales('2016', 50),
+      new OrdinalSales('2017', 45),
+    ];
+
+    final otherSalesData = [
+      new OrdinalSales('2014', 20),
+      new OrdinalSales('2015', 35),
+      new OrdinalSales('2016', 15),
+      new OrdinalSales('2017', 10),
+    ];
+
+    return [
+      new charts.Series<OrdinalSales, String>(
+        id: 'Desktop',
+        domainFn: (OrdinalSales sales, _) => sales.year,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        data: desktopSalesData,
+      ),
+      new charts.Series<OrdinalSales, String>(
+        id: 'Tablet',
+        domainFn: (OrdinalSales sales, _) => sales.year,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        data: tabletSalesData,
+      ),
+      new charts.Series<OrdinalSales, String>(
+        id: 'Mobile',
+        domainFn: (OrdinalSales sales, _) => sales.year,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        data: mobileSalesData,
+      ),
+      new charts.Series<OrdinalSales, String>(
+        id: 'Other',
+        domainFn: (OrdinalSales sales, _) => sales.year,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        data: otherSalesData,
+      ),
+    ];
+    }
+  return runApp(new MaterialApp(
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+      primaryColor: Colors.teal
+    ),
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('ExpansionTile'),
-        ),
-        body: ListView.builder(
-          itemBuilder: (BuildContext context, int index) =>
-              EntryItem(data[index]),
-          itemCount: data.length,
-        ),
-      ),
-    );
-  }
-}
-
-// One entry in the multilevel list displayed by this app.
-class Entry {
-  
-  final String title;
-  final List<Entry> children;
-
-  Entry(this.title, [this.children = const <Entry>[]]);
-
-}
-
-// The entire multilevel list displayed by this app.
-final List<Entry> data = <Entry>[
-  Entry(
-    'Chapter A',
-    <Entry>[
-      Entry('Section A0'),
-      Entry('Section A1'),
-      Entry('Section A2'),
-    ],
-  ),
-  Entry(
-    'Chapter B',
-    <Entry>[
-      Entry('Section B0'),
-      Entry('Section B1'),
-    ],
-  ),
-  Entry(
-    'Chapter C',
-    <Entry>[
-      Entry('Section C0'),
-      Entry('Section C1'),
-      Entry('Section C2',),
-    ],
-  ),
-];
-
-// Displays one Entry. If the entry has children then it's displayed
-// with an ExpansionTile.
-class EntryItem extends StatelessWidget {
-  const EntryItem(this.entry);
-
-  final Entry entry;
-
-  Widget _buildTiles(Entry root) {
-    if (root.children.isEmpty) 
-      return ListTile(title: Text(root.title));
-    
-    return GestureDetector(
-      onTap: (){
-      
-
-        var title = root.children[0].title;
-       
-        if(title.contains("Section A0")){
-          print("MAtchecd");
-        }
-        else{
-          print("Not matched");
-        }
-
-        print("$title");
-
-      },
-          child: Container(
         
-        child: ExpansionTile(
-          
-          key: PageStorageKey<Entry>(root),
-          title: Text(root.title,),
-          children: root.children.map(_buildTiles).toList(),
+        body: Container(
+          margin: EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(20.0),
+            child: new SimpleSeriesLegend(_createSampleData()),
         ),
+           
       ),
+      
+  ));
+}
+
+
+class SimpleSeriesLegend extends StatelessWidget {
+  final List<charts.Series> seriesList;
+  final bool animate;
+
+  SimpleSeriesLegend(this.seriesList, {this.animate});
+
+  factory SimpleSeriesLegend.withSampleData() {
+    return new SimpleSeriesLegend(
+    null,
+      // Disable animations for image tests.
+      animate: false,
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
-    
-    return _buildTiles(entry);
+    return new charts.BarChart(
+      seriesList,
+      animate: animate,
+      barGroupingType: charts.BarGroupingType.grouped,
+      // Add the series legend behavior to the chart to turn on series legends.
+      // By default the legend will display above the chart.
+      behaviors: [new charts.SeriesLegend(
+        position: charts.BehaviorPosition.bottom,
+      )],
+    );
   }
+
+  /// Create series list with multiple series
+
 }
 
-void main() {
-  runApp(ExpansionTileSample());
+/// Sample ordinal data type.
+class OrdinalSales {
+  final String year;
+  final int sales;
+
+  OrdinalSales(this.year, this.sales);
 }
